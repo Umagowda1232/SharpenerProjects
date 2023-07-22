@@ -1,119 +1,101 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>REST API</title>
+    <title>Todo List</title>
   </head>
   <body>
+    <h2>Todo List</h2>
     <form onsubmit="addToDo(event)">
-      <label>ToDoName</label>
-      <input type="text" id="todoid" required />
-      <label>Description</label>
-      <input type="text" id="descriptionid" required />
-      <button type="submit">AddItem</button>
+      <input type="text" id="todoid" placeholder="Todo Name" />
+      <input type="text" id="descriptionid" placeholder="Description" />
+      <button type="submit">Add</button>
     </form>
-    <br />
-    <div class="list-group">
-      <ul class="item-list" id="items">
-        <!-- <li class="list-group-item">Coding-Web Dvelopment<button class="btn btn-danger btn-sm float-end position-relative">X</button><button class="btn btn-sm btn-primary float-end">&#x2713;</button></li> -->
-      </ul>
-      <br />
-      <br />
-      <br />
-      <h4 style="text-align: center">ToDo's Done</h4>
-      <hr />
-      <ul class="item-list" id="done-item">
-        <!-- <li class="list-group-item">Coding-Web Dvelopment<button class="btn btn-danger btn-sm float-end">X</button><button class="btn btn-sm btn-primary float-end">&#x2713;</button></li> -->
-      </ul>
-    </div>
+
     <ul id="todoList"></ul>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-    <script type="text/javascript">
-      function addToDo(event) {
+
+    <h2>Done</h2>
+    <ul id="done-item"></ul>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      async function addToDo(event) {
         event.preventDefault();
-        todoname = document.getElementById("todoid").value;
-        description = document.getElementById("descriptionid").value;
-        //console.log(todoname, description);
+        const todoname = document.getElementById("todoid").value;
+        const description = document.getElementById("descriptionid").value;
 
         const obj = {
           todoname,
           description,
         };
-        axios
-          .post(
-            "https://crudcrud.com/api/c4732698d7694429b4e191c8a4148d32/todoData",
+
+        try {
+          const res = await axios.post(
+            "https://crudcrud.com/api/33a3430d1b7e4908a7be343ff732840c/toDoData",
             obj
-          )
-          .then((res) => {
-            showTodoOnScreen(res.data);
-            console.log(res);
-          })
-          .catch((err) => {
-            document.body.innerHTML =
-              document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
-            console.log(err);
-          });
+          );
+          showTodoOnScreen(res.data);
+          console.log(res);
+        } catch (err) {
+          document.body.innerHTML =
+            document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
+          console.log(err);
+        }
       }
 
-      function getallItem(userId) {
-        axios
-          .get(
-            `https://crudcrud.com/api/c4732698d7694429b4e191c8a4148d32/todoData/${userId}`
-          )
-          .then((res) => {
-            showTodoOnScreen(res.data);
-          })
-          .catch((err) => {
-            document.body.innerHTML =
-              document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
-            console.log(err);
-          });
+      async function getallItem(userId) {
+        try {
+          const res = await axios.get(
+            `https://crudcrud.com/api/33a3430d1b7e4908a7be343ff732840c/toDoData/${userId}`
+          );
+          showTodoOnScreen(res.data);
+        } catch (err) {
+          document.body.innerHTML =
+            document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
+          console.log(err);
+        }
       }
 
-      window.addEventListener("DOMContentLoaded", () => {
-        axios
-          .get(
-            "https://crudcrud.com/api/c4732698d7694429b4e191c8a4148d32/todoData"
-          )
-          .then((res) => {
-            console.log(res.data);
-            for (i = 0; i < res.data.length; i++) {
-              showTodoOnScreen(res.data[i]);
-            }
-          })
-          .catch((err) => {
-            document.body.innerHTML =
-              document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
-            console.log(err);
-          });
+      window.addEventListener("DOMContentLoaded", async () => {
+        try {
+          const res = await axios.get(
+            "https://crudcrud.com/api/33a3430d1b7e4908a7be343ff732840c/toDoData"
+          );
+          console.log(res.data);
+          for (const user of res.data) {
+            showTodoOnScreen(user);
+          }
+        } catch (err) {
+          document.body.innerHTML =
+            document.body.innerHTML + "<h4> Some Thing Went Wrong</h4>";
+          console.log(err);
+        }
       });
 
       function showTodoOnScreen(user) {
         let parentNode = document.getElementById("todoList");
         const child = `<li id=${user._id}> ${user.todoname}-${user.description}
-                <button onclick=done('${user._id}')> Done </button>
-                <button oclick = notDone('${user._id}')> X </button>`;
+          <button onclick="done('${user._id}')"> Done </button>
+          <button onclick="notDone('${user._id}')"> X </button>`;
         parentNode.innerHTML = parentNode.innerHTML + child;
       }
 
-      function notDone(userId) {
-        axios
-          .delete(
-            "https://crudcrud.com/api/c4732698d7694429b4e191c8a4148d32/todoData/${userId}"
-          )
-          .then((res) => {
-            removeFromWeb(userId);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      async function notDone(userId) {
+        try {
+          const res = await axios.delete(
+            `https://crudcrud.com/api/33a3430d1b7e4908a7be343ff732840c/toDoData/${userId}`
+          );
+          removeFromWeb(userId);
+        } catch (err) {
+          console.log(err);
+        }
       }
 
       function removeFromWeb(userId) {
         const parent = document.getElementById("todoList");
-        const item = document.getElementById(userId);
-        parent.removeChild(item);
+        const item = document.getElementById(`${userId}`);
+        if (item) {
+          parent.removeChild(item);
+        }
       }
 
       function done(userId) {
@@ -125,3 +107,4 @@
     </script>
   </body>
 </html>
+<!-- this is the todo list project -->
